@@ -1,3 +1,6 @@
+//mongooseをロード
+const mongoose = require("mongoose");
+
 const Subscriber = require("./models/subscriber");
 
 //データベース接続を設定
@@ -16,32 +19,14 @@ db.once("open",() => {
 });
 
 
+//クエリの作成と実行
+var myQuery = Subscriber.findOne({
+  name:"Jon Wexler"
+})
+.where("email",/wexler/);
 
-
-//モデルを作成して保存する2つの方法
-//1つ目
-//新しいSubscriberを実体化する
-var Subscriber1 = new Subscriber({
-  name:"Jon Wexler",
-  email:"jon@jonwexler.com"
+//クエリを実行し、コールバック関数でエラーとデータを処理する
+myQuery.exec((error,data) => {
+  if(data) console.log(data.name);
 });
 
-//Subscriberをデータベースに保存する
-Subscriber1.save((error,savedDocument) => {
-  //エラーがあれば次のミドルウェア関数に渡す
-  if (error) console.log(error);
-  //保存したドキュメントをログに出す
-  console.log(savedDocument);
-});
-
-//2つ目
-Subscriber.create({
-  name:"Jon Wexler",
-  email:"jon@jonwexler.com"
-},
-//Subscriberの作成と保存を一度に行う
-function (error,savedDocument){
-if(error) console.log(error);
-console.log(savedDocument);
-}
-);

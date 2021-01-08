@@ -1,28 +1,47 @@
-//MongoDBモジュールをロード
-const MongoDB = require("mongodb").MongoClient,
+const Subscriber = require("./models/subscriber");
 
-dbURL = "mongodb://localhost:27017",
+//データベース接続を設定
+mongoose.connect(
+  "mongodb://localhost:27017/recipe_db",
+  {useNewUrlParser:true}
+);
 
-dbName = "recipe_db";
+//データベースをdb変数に代入
+const db = mongoose.connection;
 
-//ローカルデータベースサーバーへの接続を設定
-MongoDB.connect(dbURL,(error,client) => {
-  if(error) throw error;
-
-  //MongoDBサーバーへの接続から、recipe_db データベースを取得
-  let db = client.db(dbName);
-
-  //contactsコレクションから全レコードを取り出す
-  db.collection("contacts")
-  .find()
-  .toArray((error,data) => {
-    if(error) throw error;
-    console.log(data);//結果をコンソールにログを出力
-  });
-  db.collection("contacts")
-  .insert({name:"Freeddie Mercury",email:"fred@queen.com"
-  },(error,db) => {
-  if(error)throw error;console.log(db);
-  });
+//データベース接続時のメッセージをログに出力する
+db.once("open",() => {
+  //mongooseを使ってMongoDBに接続できました！
+  console.log("Successfully connected to MongoDB using Mongoose!");
 });
 
+
+
+
+//モデルを作成して保存する2つの方法
+//1つ目
+//新しいSubscriberを実体化する
+var Subscriber1 = new Subscriber({
+  name:"Jon Wexler",
+  email:"jon@jonwexler.com"
+});
+
+//Subscriberをデータベースに保存する
+Subscriber1.save((error,savedDocument) => {
+  //エラーがあれば次のミドルウェア関数に渡す
+  if (error) console.log(error);
+  //保存したドキュメントをログに出す
+  console.log(savedDocument);
+});
+
+//2つ目
+Subscriber.create({
+  name:"Jon Wexler",
+  email:"jon@jonwexler.com"
+},
+//Subscriberの作成と保存を一度に行う
+function (error,savedDocument){
+if(error) console.log(error);
+console.log(savedDocument);
+}
+);
